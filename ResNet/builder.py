@@ -55,19 +55,29 @@ class ResNet(SegmentationModel):
             
             # Assign an aux output if there is room and it isn't the same at 
             #  the main output. Up sample to match input shape
-            if i >= self.aux_output_block and aux_output is False and i != self.blocks-1:
+            if (i >= self.aux_output_block 
+                and aux_output is False 
+                and i != self.blocks-1):
                 x = Conv2D(1, (1, 1), name='conv_aux_output')(x)
                 x = BatchNormalization(name='bn_aux_output')(x)
-                upsample_scalar = int(self.input_shape[-2] / x._keras_shape[-2])
-                x = UpSampling2D((upsample_scalar, upsample_scalar), interpolation='bilinear', name='aux_upsample')(x)
-                aux_output = Activation(self.output_activations, name='AUX_OUTPUT')(x)
+                upsample_scalar = int(self.input_shape[-2] / 
+                                      x._keras_shape[-2])
+                x = UpSampling2D((upsample_scalar, upsample_scalar),
+                    interpolation='bilinear', name='aux_upsample')(x)
+                aux_output = Activation(self.output_activations,
+                    name='AUX_OUTPUT')(x)
 
         upsample_scalar = int(self.input_shape[-2] / x._keras_shape[-2])
         x = Conv2D(1, (1, 1), name='conv_main_output')(x)
         x = BatchNormalization(name='bn_main_output')(x)
-        x = UpSampling2D((upsample_scalar, upsample_scalar), interpolation='bilinear', name='main_upsample')(x)
-        main_output = Activation(self.output_activations, name='MAIN_OUTPUT')(x)
-        outputs = [aux_output, main_output] if aux_output is not False else main_output
+        x = UpSampling2D(
+            (upsample_scalar, upsample_scalar),
+            interpolation='bilinear',
+            name='main_upsample')(x)
+        main_output = Activation(
+            self.output_activations,
+            name='MAIN_OUTPUT')(x)
+        outputs = [aux_output, main_output] if aux_output else main_output
         self.net = Model(inputs, outputs, name='ResNet')
 
 
@@ -76,23 +86,32 @@ def res_block_inner(inputs, n_convs, filters, activation, block_name):
         raise TypeError('n_convs must be an integer >= 1')
     if n_convs < 1:
         raise ValueError('n_convs must be >= 1')
-    names = [f'{block_name}_3x3_conv', f'{block_name}_bn', f'{block_name}_{activation}']
+    names = [
+        f'{block_name}_3x3_conv',
+        f'{block_name}_bn',
+        f'{block_name}_{activation}'
+    ]
     x = inputs
     conv_counter = 1
     while conv_counter < n_convs:
-        x = Conv2D(filters, (3, 3), padding='same', name=names[0] + str(conv_counter))(x)
+        x = Conv2D(filters, (3, 3), padding='same', name=names[0] 
+            + str(conv_counter))(x)
         x = BatchNormalization(name=names[1] + str(conv_counter))(x)
         x = Activation(activation, name=names[2] + str(conv_counter))(x)
         conv_counter += 1
-    x = Conv2D(filters, (3, 3), padding='same', name=names[0] + str(conv_counter))(x)
+    x = Conv2D(filters, (3, 3), padding='same', name=names[0] 
+        + str(conv_counter))(x)
     x = BatchNormalization(name=names[1] + str(conv_counter))(x)
     return x
 
 
 def res_block_inner_bottleneck(inputs, filters, activation, block_name):
-    names = [f'{block_name}_1x1_conv_start', f'{block_name}_bn1', f'{block_name}_{activation}1',
-            f'{block_name}_3x3_conv', f'{block_name}_bn2', f'{block_name}_{activation}2',
-            f'{block_name}_1x1_conv_end', f'{block_name}_bn3']
+    names = [
+        f'{block_name}_1x1_conv_start', f'{block_name}_bn1',
+        f'{block_name}_{activation}1', f'{block_name}_3x3_conv',
+        f'{block_name}_bn2', f'{block_name}_{activation}2',
+        f'{block_name}_1x1_conv_end', f'{block_name}_bn3'
+    ]
     x = Conv2D(filters, (1, 1), name=names[0])(inputs)
     x = BatchNormalization(name=names[1])(x)
     x = Activation(activation, name=names[2])(x)
@@ -117,9 +136,11 @@ def skip_connection(inputs, con_in_skip=False, filters=None, block_name=None):
 def res_block(inputs, filters, activation, block_name,
               inner_type='bottleneck', n_convs=3, con_in_skip=False):
     if inner_type == 'bottleneck':
-        inner = res_block_inner_bottleneck(inputs, filters, activation, block_name)
+        inner = res_block_inner_bottleneck(inputs, filters, activation, 
+            block_name)
     else:
-        inner = res_block_inner(inputs, n_convs, filters, activation, block_name)
+        inner = res_block_inner(inputs, n_convs, filters, activation,
+            block_name)
     skip = skip_connection(inputs, con_in_skip, filters, block_name)
     x = Add(name=f'{block_name}_add')([inner, skip])
     x = Activation(activation, name=f'{block_name}_final_{activation}')(x)
