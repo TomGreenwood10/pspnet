@@ -1,1 +1,5 @@
 .vscode/
+venv/
+scratch.ipynb
+scratch.py
+images/
