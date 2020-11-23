@@ -95,4 +95,3 @@ if __name__ == "__main__":
     with Pool() as pool:
         pool.starmap(process_image_label_pair, args)
     resize_and_arrange()
-    

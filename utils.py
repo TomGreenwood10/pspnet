@@ -251,7 +251,7 @@ def display_result(model_path, X_test, y_test, normalise=True, size=(20, 10)):
     :return: None -- displays image.
     """
 
-    from keras.models import load_model
+    from tensorflow.keras.models import load_model
     import model
 
     # Load model

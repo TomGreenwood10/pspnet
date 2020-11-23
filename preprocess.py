@@ -7,7 +7,7 @@ import random
 import numpy as np
 import imgaug.augmenters as iaa
 from skimage import io, transform
-from keras.utils import np_utils
+from tensorflow.keras.utils import to_categorical
 
 
 def labeled_data(images_path,
@@ -92,7 +92,7 @@ def labeled_data(images_path,
     y_train = np.concatenate(y_train, axis=0)
     y_train = y_train.reshape(-1, image_shape[0], image_shape[1], 1)
 
-    y_train = np_utils.to_categorical(y_train)
+    y_train = to_categorical(y_train)
 
     return (x_train, y_train)
 

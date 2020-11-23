@@ -3,3 +3,5 @@ venv/
 scratch.ipynb
 scratch.py
 images/
+*__pycache__*
+*ipynb_checkpoints*

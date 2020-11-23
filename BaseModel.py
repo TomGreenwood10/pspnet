@@ -2,7 +2,7 @@
 Base model class for segmentation models.
 """
 
-from keras.callbacks import ModelCheckpoint, CSVLogger
+from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger
 from os import listdir
 from os.path import join
 from skimage.transform import resize

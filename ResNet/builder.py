@@ -1,10 +1,10 @@
 # Functions to build a ResNet framework
 
-from keras.layers import (Conv2D, BatchNormalization, Activation, Add, Input, 
-    Dense, AveragePooling2D, UpSampling2D)
-from keras.models import Model
-from keras.callbacks import ModelCheckpoint
-from keras import backend as K
+from tensorflow.keras.layers import (Conv2D, BatchNormalization, Activation,
+    Add, Input, Dense, AveragePooling2D, UpSampling2D)
+from tensorflow.keras.models import Model
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras import backend as K
 from BaseModel import SegmentationModel, get_pool_size
 
 
@@ -61,13 +61,13 @@ class ResNet(SegmentationModel):
                 x = Conv2D(1, (1, 1), name='conv_aux_output')(x)
                 x = BatchNormalization(name='bn_aux_output')(x)
                 upsample_scalar = int(self.input_shape[-2] / 
-                                      x._keras_shape[-2])
+                                      x.shape[-2])
                 x = UpSampling2D((upsample_scalar, upsample_scalar),
                     interpolation='bilinear', name='aux_upsample')(x)
                 aux_output = Activation(self.output_activations,
                     name='AUX_OUTPUT')(x)
 
-        upsample_scalar = int(self.input_shape[-2] / x._keras_shape[-2])
+        upsample_scalar = int(self.input_shape[-2] / x.shape[-2])
         x = Conv2D(1, (1, 1), name='conv_main_output')(x)
         x = BatchNormalization(name='bn_main_output')(x)
         x = UpSampling2D(
