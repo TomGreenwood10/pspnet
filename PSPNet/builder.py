@@ -2,6 +2,7 @@
 File containing class for biulding pyramid scene parsing network (PSPNet).
 """
 
+from tensorflow import Tensor
 from tensorflow.keras.layers import AveragePooling2D, Conv2D, \
     BatchNormalization, Activation, UpSampling2D, Input, Concatenate
 from tensorflow.keras.models import Model
@@ -74,13 +75,17 @@ class PSPNet(SegmentationModel):
         x = pyramid_module(x)
         upsample_scalar = int(self.input_shape[-2] / x.shape[-2])
         # Conv with 5 filters for 5 classes (in practice set) - change as req.
-        x = Conv2D(5, (1, 1), name='conv_main_output')(x)
+        x = Conv2D(23, (1, 1), name='conv_main_output')(x)
         x = BatchNormalization(name='bn_main_output')(x)
         x = UpSampling2D((upsample_scalar, upsample_scalar),
             interpolation='bilinear', name='main_upsample')(x)
         main_output = Activation(self.output_activations,
             name='MAIN_OUTPUT')(x)
-        outputs = [aux_output, main_output] if aux_output else main_output
+        if isinstance(aux_output, Tensor):
+            outputs = [aux_output, main_output]
+        else:
+            outputs = main_output
+        # outputs = [aux_output, main_output] if aux_output else main_output
         self.net = Model(inputs, outputs, name='ResNet')
 
 
