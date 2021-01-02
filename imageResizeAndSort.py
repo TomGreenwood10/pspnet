@@ -9,11 +9,8 @@ directory structure.
 import os
 import random
 from multiprocessing import Pool
-import matplotlib.pyplot as plt
-import numpy as np
 from skimage import io
 from skimage import transform
-import seaborn as sns
 
 
 # Original (large) images
@@ -67,6 +64,7 @@ def resize_image_and_label(image, label, size=400):
 
 
 def save_in_train_and_test_directories(image, label, filename, train):
+    filename = filename.strip(".jpg")
     if train:
         image_save_filepath = os.path.join(
             TRAIN_DIR, IMAGE_DIR, filename + ".png")
@@ -94,4 +92,4 @@ if __name__ == "__main__":
 
     with Pool() as pool:
         pool.starmap(process_image_label_pair, args)
-    resize_and_arrange()
+
